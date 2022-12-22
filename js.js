@@ -1,42 +1,62 @@
 //add button
-let addButton = document.getElementById("add-button");
+var addButton = document.getElementById("add-button");
 addButton.addEventListener("click", addToDoItem);
 
+//function to add to do item
 function addToDoItem() {
-    alert("Add button clicked!");
+    var itemText = toDoEntryBox.value;
+    newToDoItem(itemText, false);
 }
 
 //clear button
-let clearButton = document.getElementById("clear-completed-button");
+var clearButton = document.getElementById("clear-completed-button");
 clearButton.addEventListener("click", clearCompletedToDoItems);
 
 function clearCompletedToDoItems() {
     alert("Clear button clicked");
 }
+
 //empty list button
-let emptyButton = document.getElementById("empty-button");
+var emptyButton = document.getElementById("empty-button");
 emptyButton.addEventListener("click", emptyList)
 
 function emptyList() {
-    alert("Empty button clicked");
+    var toDoItems = toDoList.children;
+    while (toDoItems.length > 0) {
+        toDoItems.item(0).remove();
+    }
 }
 
 //save list button
-let saveButton = document.getElementById("save-button");
+var saveButton = document.getElementById("save-button");
 saveButton.addEventListener("click", saveList);
 
 function saveList() {
-    alert("Save list clicked");
+    var toDos = [];
+
+    for (var i = 0; i < toDoList.children.length; i++) {
+        var toDo = toDoList.children.item(i);
+
+        var toDoInfo = {
+            "task": toDo.innerText,
+            "completed": toDo.classList.contains("completed")
+        };
+
+        toDos.push(toDoInfo);
+
+    }
+
+    localStorage.setItem("toDos", JSON.stringify(toDos));
 }
 
 //variables to select the text box and the list
-let toDoEntryBox = document.getElementById("todo-entry-box");
-let toDoList = document.getElementById("todo-list");
+var toDoEntryBox = document.getElementById("todo-entry-box");
+var toDoList = document.getElementById("todo-list");
 
 //function to create new to do item
 function newToDoItem(itemText, completed) {
-    let toDoItem = document.createElement("li");
-    let toDoText = document.createTextNode(itemText);
+    var toDoItem = document.createElement("li");
+    var toDoText = document.createTextNode(itemText);
     toDoItem.appendChild(toDoText);
 
     if(completed) {
@@ -47,8 +67,34 @@ function newToDoItem(itemText, completed) {
     toDoItem.addEventListener("dblclick", toggleToDoItemState);
 }
 
-//function to add to do item
-function addToDoItem() {
-    let itemText = toDoEntryBox.value;
-    newToDoItem(itemText, false);
+//toggle to do item state
+function toggleToDoItemState() {
+    if (this.classList.contains("completed")) {
+        this.classList.remove("completed");
+    } else { 
+        this.classList.add("completed");
+    }
 }
+
+//remove items
+function clearCompletedToDoItems() {
+    var completedItems = toDoList.getElementsByClassName("completed");
+
+    while (completedItems.length > 0) {
+        completedItems.item(0).remove();
+    }
+}
+
+//load list
+function loadList() {
+    if (localStorage.getItem("toDos") != null) {
+        var toDos = JSON.parse(localStorage.getItem("toDos"));
+
+        for (var i = 0; i < toDos.length; i++) {
+            var toDo = toDos[i];
+            newToDoItem(toDo.task, toDo.completed);
+        }
+    }
+}
+
+loadList();
